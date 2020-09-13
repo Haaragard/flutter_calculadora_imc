@@ -15,6 +15,8 @@ class _HomeState extends State<Home> {
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
 
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   String _textInfo = "Informe seus dados";
 
   void _resetFields() {
@@ -48,6 +50,16 @@ class _HomeState extends State<Home> {
     });
   }
 
+  String _validateField(String value) {
+    if (value.isEmpty) {
+      return "Este campo não pode estar vazio!";
+    } else if (double.tryParse(value) == null) {
+      return "Este campo precisa ser um valor inteiro ou com decimais!";
+    }
+
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,29 +81,33 @@ class _HomeState extends State<Home> {
 
   Widget _body() {
     return
-      ListView(
+    Form(
+      key: _formKey,
+      child: ListView(
         padding: EdgeInsets.only(left: 15, right: 15),
         children: <Widget>[
           Icon(Icons.person_outline, size: 120, color: Colors.green,),
 
           // Peso
-          TextField(keyboardType: TextInputType.number,
+          TextFormField(keyboardType: TextInputType.number,
             decoration: InputDecoration(labelText: "Peso (kg)",
                 labelStyle: TextStyle(color: Colors.green)
             ),
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.green, fontSize: 25.0),
             controller: _weightController,
+            validator: _validateField,
           ),
 
           // Altura
-          TextField(keyboardType: TextInputType.number,
+          TextFormField(keyboardType: TextInputType.number,
             decoration: InputDecoration(labelText: "Altura (cm)",
                 labelStyle: TextStyle(color: Colors.green)
             ),
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.green, fontSize: 25.0),
             controller: _heightController,
+            validator: _validateField,
           ),
 
           Padding( padding: EdgeInsets.only(top: 15.0),),
@@ -100,7 +116,9 @@ class _HomeState extends State<Home> {
           Container(
             height: 50.0,
             child: RaisedButton(
-              onPressed: _calculate,
+              onPressed: () {
+                if (_formKey.currentState.validate()) { _calculate(); }
+              },
               child: Text("Calcular",
                 style: TextStyle(color: Colors.white, fontSize: 20.0),
               ),
@@ -116,6 +134,7 @@ class _HomeState extends State<Home> {
             style: TextStyle(color: Colors.green, fontSize: 25.0),
           ),
         ],
-      );
+      ),
+    );
   }
 }
